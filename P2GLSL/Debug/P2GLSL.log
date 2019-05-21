@@ -1,3 +1,4 @@
 ﻿cl : Línea de comandos warning D9035: La opción 'Gm' está desusada y se quitará en próximas versiones
   main.cpp
-  P2GLSL.vcxproj -> C:\Users\elena\Desktop\P2\Visual2015\P2GLSL\Debug\P2GLSL.exe
+main.obj : warning LNK4075: se omite '/EDITANDCONTINUE' debido a la especificación '/SAFESEH'
+  P2GLSL.vcxproj -> C:\Users\elena\Desktop\P2 - copia\Visual2015\P2GLSL\Debug\P2GLSL.exe

@@ -36,7 +36,7 @@ struct SLight
 	vec3 Il; //Intensidad de la luz
 	vec3 Pl; //Posicion de la luz
 	vec3 D;	 // Direccion de la luz (En este caso, establecemos que sea la misma de la camara)
-	float alpha; //Angulo
+	float alpha; //Angulo de apertura
 };
 
 
@@ -59,8 +59,6 @@ SLight slights[1] = SLight[1](
 
 //Para utilizar view en el shader de fragmentos -> uniform math4 view;
 
-
-
 //Propiedades del objeto
 vec3 Ka = vec3(1,0,0);
 vec3 Kd = vec3(1,0,0);
@@ -69,6 +67,19 @@ vec3 Ke = vec3(0);
 float n = 100;
 vec3 N;
 vec3 Pp;
+
+//Struct Niebla
+struct Fog
+{
+	float df;
+	vec3 cf;
+
+};
+
+//Valor de las variables de la niebla
+Fog fog = Fog(0.1, vec3(0,0,0));
+
+
 
 vec3 shadePLight()
 {
@@ -169,7 +180,40 @@ vec3 shadeSLight()
   return c;		
 }
 
+vec3 shadeFog()
+{
+  vec3 c= vec3(0.0);
 
+  c=(plights[0].Ia)*Ka;
+
+  for (int i=0; i<1; ++i)
+  {  
+	float d = length (plights[i].Pl - Pp);
+	float fatt = 1/(1 + 0 * d + 0.2*d*d);
+
+	vec3 L = normalize(plights[i].Pl- Pp);
+    float factor_difuso = dot(N,L);
+
+    c+=clamp (plights[i].Il*Kd*factor_difuso*fatt,0,1);	
+
+	vec3 R = normalize(reflect(-L,N));
+	vec3 V = normalize(vec3(0)-Pp);
+
+	float factor_especular = dot (R,V);
+    factor_especular = pow(max (factor_especular,0),n);
+
+    c+=clamp(plights[i].Il*Ks*factor_especular*fatt,0,1);
+
+	c+=Ke;
+
+	float f = clamp(exp(-(pow(fog.df*d,2.0))),0,1);
+
+	c= f*c + (1-f)* fog.cf;
+
+  }
+
+  return c;		
+}
 
 void main()
 {
@@ -183,6 +227,7 @@ void main()
 
 	outColor =vec4 (0);
 	//outColor += vec4(shadePLight(), 0.0);   
-	outColor += vec4(shadeDLight(), 0.0);   
-	//outColor += vec4(shadeSLight(), 0.0);   
+	//outColor += vec4(shadeDLight(), 0.0);   
+	//outColor += vec4(shadeSLight(), 0.0);  
+	outColor += vec4(shadeFog(), 0.0); 
 }
